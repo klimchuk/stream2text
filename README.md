@@ -19,7 +19,7 @@ cp ggml-medium.en.bin ../../Resources
 
 After that you should be able to build application in XCode and run it on iPad.
 
-<img src="screenshot.jpeg" alt="Screenshot" width="800" style="border: 2px solid #ccc; border-radius: 8px;" />
+<img src="screenshot.jpeg" alt="Screenshot" width="800" style="border: 20px solid #fff; border-radius: 10px;" />
 
 ## License
 MIT
