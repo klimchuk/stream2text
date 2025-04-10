@@ -3,7 +3,7 @@ Simple iPad app to transcribe mp3 audio streams or voice memos
 
 ![Alt text](./stream2text/Assets.xcassets/AppIcon.appiconset/s2t-128.png)
 
-It is based on excellent project https://github.com/ggml-org/whisper.cpp
+It is based on excellent projects https://github.com/ggml-org/whisper.cpp and https://github.com/dimitris-c/AudioStreaming
 
 To get decent performance you need iPad with Apple chip M1, M2, ...
 
