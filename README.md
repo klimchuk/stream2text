@@ -1,7 +1,7 @@
 # stream2text
 Simple iPad app to transcribe mp3 audio streams or voice memos
 
-![Alt text](./stream2text/Assets.xcassets/AppIcon.appiconset/s2t-32.png)
+![Alt text](./stream2text/Assets.xcassets/AppIcon.appiconset/s2t-128.png)
 
 It is based on excellent project https://github.com/ggml-org/whisper.cpp
 
@@ -19,7 +19,7 @@ cp ggml-medium.en.bin ../../Resources
 
 After that you should be able to build application in XCode and run it on iPad.
 
-![Alt text](./screenshot.jpeg)
+<img src="screenshot.jpeg" alt="Screenshot" width="800" style="border: 2px solid #ccc; border-radius: 8px;" />
 
 ## License
 MIT
