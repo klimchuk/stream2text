@@ -44,8 +44,8 @@ final class NetStatusService: NetStatusProvider {
     }
 
     private let network: NWPathMonitor
-
     private let monitorQueue: DispatchQueue
+    private var isMonitoring = false
 
     init(network: NWPathMonitor) {
         self.network = network
@@ -53,13 +53,10 @@ final class NetStatusService: NetStatusProvider {
     }
 
     deinit {
-        network.cancel()
+        stop()
     }
 
-    /// Starts the monitoring of connection changes
-    ///
-    /// - parameter connectionChange: A callback block to listen to changes of the network type, this skips duplicates.
-    /// - Note:  The callback will be executed on the main thread.
+    /// Starts monitoring connection changes.
     func start(connectionChange: @escaping (NetConnectionType) -> Void) {
         network.pathUpdateHandler = { path in
             let connectionType = path.toNetConnectionType()
@@ -69,11 +66,15 @@ final class NetStatusService: NetStatusProvider {
     }
 
     func stop() {
+        guard isMonitoring else { return }
+        network.pathUpdateHandler = nil
         network.cancel()
+        isMonitoring = false
     }
 
-    func startIfNeeded() {
-        guard network.queue == nil else { return }
+    private func startIfNeeded() {
+        guard !isMonitoring else { return }
+        isMonitoring = true
         network.start(queue: monitorQueue)
     }
 }

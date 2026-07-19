@@ -142,9 +142,15 @@ struct StreamDetailView: View {
                                             }
                                             else {
                                                 readingFile = true
-                                                session.getStreamURL() { url in
+                                                session.getStreamURL() { url, title in
                                                     if url != nil {
-                                                        print("URL: \(String(describing: url))")
+                                                        if title != nil {
+                                                            player.streamTitle = title!
+                                                            print("URL: \(String(describing: url)) Title:\(title ?? "Unknown")")
+                                                        } else
+                                                            {
+                                                            print("URL: \(String(describing: url))")
+                                                        }
                                                         
                                                         DispatchQueue.main.sync {
                                                             UIApplication.shared.isIdleTimerDisabled = true

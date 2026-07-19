@@ -8,8 +8,15 @@
 import Foundation
 import whisper
 
-enum WhisperError: Error {
-    case couldNotInitializeContext
+enum WhisperError: LocalizedError {
+    case couldNotInitializeContext(path: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .couldNotInitializeContext(let path):
+            return "Could not initialize Whisper context with model at \(path). The model file may be incomplete or incompatible with the bundled whisper.cpp version."
+        }
+    }
 }
 
 // Meet Whisper C++ constraint: Don't access from more than one thread at a time.
@@ -73,7 +80,7 @@ actor WhisperContext {
             return WhisperContext(context: context)
         } else {
             print("Couldn't load model at \(path)")
-            throw WhisperError.couldNotInitializeContext
+            throw WhisperError.couldNotInitializeContext(path: path)
         }
     }
 }

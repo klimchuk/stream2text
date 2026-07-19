@@ -168,41 +168,48 @@ class StreamItem : Identifiable, Hashable, Codable, ObservableObject {
         task.resume()
     }
 
-    func getStreamURL(completion: @escaping (URL?) -> Void) {
+    func getStreamURL(completion: @escaping (URL?, String?) -> Void) {
         let u = url.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         var r:URL? = URL(string: u)
+        var title:String?
         
         // Download and extract URL
         fetchFileContent(from: u) { result in
             switch result {
             case .success(let result):
                     // pls
-                if result.mimeType == "audio/x-scpls" || result.mimeType == "application/pls+xml" {
+                if u.hasSuffix(".pls") || result.mimeType == "audio/x-scpls" || result.mimeType == "application/pls+xml" {
                     for line in result.lines {
                             if line.hasPrefix("File1=") {
-                                var v = line.dropFirst(6).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                                let v = line.dropFirst(6).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                                 if v.count > 0 {
                                     r = URL(string: v)
-                                    break
+                                }
+                            } else if line.hasPrefix("Title1=") {
+                                let v = line.dropFirst(7).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                                if v.count > 0 {
+                                    title = v
                                 }
                             }
                         }
                 } else if result.mimeType == "audio/x-mpegurl" {
                     for line in result.lines {
                             if line.hasPrefix("http") {
-                                var v = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                                let v = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                                 if v.count > 0 {
                                     r = URL(string: v)
                                     break
                                 }
                             }
                         }
-                    }
+                } else {
+                    print("Unknown MIME type: \(result.mimeType ?? "Unknown")")
+                }
             case .failure(let error):
                 print("Failed to fetch file: \(error)")
             }
             
-            completion(r)
+            completion(r, title)
         }
     }
 }

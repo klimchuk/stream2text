@@ -54,8 +54,8 @@ struct SearchBar: View {
                 }
                 .padding(.trailing, 10)
                 .transition(.move(edge: .trailing))
-                .animation(.default)
             }
         }
+        .animation(.default, value: isEditing)
     }
 }

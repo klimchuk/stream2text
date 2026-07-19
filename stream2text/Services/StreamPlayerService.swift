@@ -99,8 +99,10 @@ final class StreamPlayerService : ObservableObject {
     }
     
     private var modelUrl: URL? {
-        let path = Bundle.main.path(forResource: "ggml-medium.en", ofType: "bin")
-        return URL(fileURLWithPath: path!)
+        guard let path = Bundle.main.path(forResource: "ggml-medium.en", ofType: "bin") else {
+            return nil
+        }
+        return URL(fileURLWithPath: path)
     }
 
     init() {
@@ -117,6 +119,7 @@ final class StreamPlayerService : ObservableObject {
                 self.canTranscribe = true
             } catch {
                 print(error.localizedDescription)
+                self.messageLog += "\(error.localizedDescription)\n"
             }
         }
     }
@@ -128,15 +131,16 @@ final class StreamPlayerService : ObservableObject {
     
     private func loadModel() throws {
         messageLog += "Loading model...\n"
-        if let modelUrl {
-            if #available(iOS 16.0, *) {
-                whisperContext = try WhisperContext.createContext(path: modelUrl.path())
-            } else {
-                // Fallback on earlier versions
-            }
+        guard let modelUrl else {
+            messageLog += "Could not locate model\n"
+            return
+        }
+
+        if #available(iOS 16.0, *) {
+            whisperContext = try WhisperContext.createContext(path: modelUrl.path())
             messageLog += "Loaded model \(modelUrl.lastPathComponent)\n"
         } else {
-            messageLog += "Could not locate model\n"
+            messageLog += "Whisper transcription requires iOS 16 or later\n"
         }
     }
     
@@ -144,7 +148,7 @@ final class StreamPlayerService : ObservableObject {
         if (!canTranscribe) {
             return
         }
-        guard let whisperContext else {
+        guard whisperContext != nil else {
             return
         }
         
@@ -423,11 +427,25 @@ final class StreamPlayerService : ObservableObject {
     }
 
     private func deactivateAudioSession() {
-        do {
-            print("AudioSession is deactivated")
-            try AVAudioSession.sharedInstance().setActive(false)
-        } catch let error as NSError {
-            print("Couldn't deactivate audio session: \(error.localizedDescription)")
+        print("AudioSession is deactivated")
+        let audioSession = AVAudioSession.sharedInstance()
+
+        if #available(iOS 27.0, *) {
+            audioSession.deactivate(options: []) { success, error in
+                if let error {
+                    print("Couldn't deactivate audio session: \(error.localizedDescription)")
+                } else if !success {
+                    print("Couldn't deactivate audio session")
+                }
+            }
+        } else {
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try audioSession.setActive(false)
+                } catch let error as NSError {
+                    print("Couldn't deactivate audio session: \(error.localizedDescription)")
+                }
+            }
         }
     }
 }
